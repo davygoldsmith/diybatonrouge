@@ -1,98 +1,223 @@
-// Zine pages along the edges of the homepage.
-(function () {
-  var library = [];
-  var staticPages = ["generated/page-27322a858e0bbf1.jpg", "generated/page-b4325ee5c997dcf.jpg", "generated/page-ab3b568df4b4807.jpg", "generated/page-8a2099b584cdda5.jpg", "generated/page-26e731b13dcf6be.jpg", "generated/page-9fa55e91761e5af.jpg", "generated/page-5be409a62689847.jpg", "generated/page-2c75657355a09cd.jpg", "generated/page-d0d70514e00683b.jpg", "generated/page-592dafc08105138.jpg", "generated/page-f49eb0aa94ec20f.jpg", "generated/page-631fb2648b29b6c.jpg"];
-  var pages = [];
-  for (var i = 0; i < library.length; i++) {
-    if (library[i] && library[i].image) pages.push(library[i].image);
-  }
-  if (!pages.length) pages = staticPages.slice();
 
+// Continuous zine-page collage along both sides of the homepage.
+(function () {
+  var staticPages = [
+    'generated/page-27322a858e0bbf1.jpg',
+    'generated/page-b4325ee5c997dcf.jpg',
+    'generated/page-ab3b568df4b4807.jpg',
+    'generated/page-8a2099b584cdda5.jpg',
+    'generated/page-26e731b13dcf6be.jpg',
+    'generated/page-9fa55e91761e5af.jpg',
+    'generated/page-5be409a62689847.jpg',
+    'generated/page-2c75657355a09cd.jpg',
+    'generated/page-d0d70514e00683b.jpg',
+    'generated/page-592dafc08105138.jpg',
+    'generated/page-f49eb0aa94ec20f.jpg',
+    'generated/page-631fb2648b29b6c.jpg'
+  ];
+
+  var pages = staticPages.slice();
   var phone = window.innerWidth < 700;
-  var reduce = false;
-  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-  var count = phone ? 3 : 8;
-  var cards = [];
+  var reducedMotion = false;
+
+  try {
+    reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+  } catch (e) {}
+
+  // Page spacing and movement speed.
+  var PAGE_HEIGHT = 215;
+  var SPACING = phone ? 230 : 195;
+  var SPEED = phone ? 68 : 95;
+
+  // Automatically create enough pages for tall screens.
+  var COUNT = Math.max(
+    phone ? 5 : 8,
+    Math.ceil(
+      (window.innerHeight + 2 * PAGE_HEIGHT) / SPACING
+    ) + 1
+  );
+
+  var columns = { left: [], right: [] };
   var cursor = Math.floor(Math.random() * pages.length);
-  function random(a, b) { return a + Math.random() * (b - a); }
-  function nextImage() { cursor = (cursor + 1 + Math.floor(Math.random() * 7)) % pages.length; return pages[cursor]; }
-  function show(c, instant) {
-    c.box.style.transition = (instant || reduce) ? 'none' : 'transform 690ms ease-out, width 690ms ease-out';
-    c.box.style.width = c.width + 'px';
-    c.box.style.transform = 'translate(' + Math.round(c.x) + 'px,' + Math.round(c.y) + 'px) rotate(' + c.turn + 'deg)';
+
+  function random(min, max) {
+    return min + Math.random() * (max - min);
   }
-  function make(side) {
+
+  function nextImage() {
+    cursor = (
+      cursor + 1 + Math.floor(Math.random() * 7)
+    ) % pages.length;
+
+    return pages[cursor];
+  }
+
+  // Gentle horizontal swaying without disturbing vertical spacing.
+  function position(card, time) {
+    var sway = reducedMotion
+      ? 0
+      : Math.sin(time / 1800 + card.phase) * 12;
+
+    var tilt = reducedMotion
+      ? 0
+      : Math.sin(time / 2500 + card.phase) * 4;
+
+    card.box.style.transform =
+      'translate3d(' +
+      Math.round(card.x + sway) + 'px,' +
+      Math.round(card.y) + 'px,0) rotate(' +
+      (card.turn + tilt).toFixed(2) + 'deg)';
+  }
+
+  function createColumn(side) {
     var rail = document.createElement('div');
     rail.className = 'border-stream ' + side;
     rail.setAttribute('aria-hidden', 'true');
+
     document.body.appendChild(rail);
-    for (var n = 0; n < count; n++) {
+
+    for (var i = 0; i < COUNT; i++) {
       var box = document.createElement('div');
       box.className = 'floating-page';
+
+      // Disable transitions for smooth frame-by-frame movement.
+      box.style.transition = 'none';
+      box.style.width = (
+        phone ? random(95, 155) : random(165, 320)
+      ) + 'px';
+
       var img = document.createElement('img');
       img.alt = '';
       img.loading = 'eager';
+      img.decoding = 'async';
+
       box.appendChild(img);
       rail.appendChild(box);
-      var width = phone ? random(95, 155) : random(165, 320);
-      var c = {box:box, img:img, side:side, width:width, x:random(-28,35),
-        y:phone ? n * 270 - 130 : n * 180 - 320,
-        height:width * 1.4, turn:random(-17,17), speed:phone?random(45,90):random(65,120)};
-      cards.push(c);
-      (function(card) {
-        img.onload = function () {
-          if (img.naturalWidth && img.naturalHeight)
-            card.height = card.width * img.naturalHeight / img.naturalWidth;
-        };
-        img.onerror = function () {
-          // A broken page shouldn't leave a blank space.
-          if (card.retries < 3) {
-            card.retries++;
-            img.src = nextImage();
+
+      var card = {
+        box: box,
+        img: img,
+        x: random(-28, 35),
+        y: -PAGE_HEIGHT + i * SPACING,
+        turn: random(-17, 17),
+        phase: random(0, Math.PI * 2),
+        retries: 0
+      };
+
+      columns[side].push(card);
+
+      // Retry another page image if one fails to load.
+      (function (item) {
+        item.img.onerror = function () {
+          if (item.retries++ < 5) {
+            item.img.src = nextImage();
           }
         };
-      })(c);
-      c.retries = 0;
+      })(card);
+
       img.src = nextImage();
-      show(c,true);
+      position(card, 0);
     }
   }
-  make('left');
-  make('right');
-  fetch('content.json').then(function (res) { return res.json(); }).then(function (data) {
-    if (data.border && data.border.length) {
-      var incoming = [];
-      for (var j = 0; j < data.border.length; j++) if (data.border[j].image) incoming.push(data.border[j].image);
-      if (incoming.length) pages = incoming;
-    }
-  }).catch(function () {});
 
-  // Reduced motion keeps the collage, without making it move.
-  if (reduce) return;
+  createColumn('left');
+  createColumn('right');
 
-  var last = Date.now();
-  function advance() {
-    if (document.hidden) return;
-    var now = Date.now();
-    var elapsed = Math.min((now-last)/630, 1.5);
-    last = now;
-    for (var k=0; k<cards.length; k++) {
-      var c = cards[k];
-      c.y -= c.speed * elapsed;
-      c.x += random(phone?-9:-28, phone?9:28);
-      c.x = Math.max(phone?-35:-90,Math.min(phone?55:125,c.x));
-      c.turn += random(-8,8);
-      c.turn = Math.max(-27,Math.min(27,c.turn));
-      if (!phone && Math.random()<0.13) c.width = Math.max(155,Math.min(340,c.width+random(-32,32)));
-      if (c.y+c.height < -100) {
-        c.y = window.innerHeight + random(20,220);
-        c.x = random(-20,55);
-        c.width = phone?random(95,155):random(165,320);
-        c.retries = 0;
-        c.img.src = nextImage();
-        show(c,true);
-      } else show(c,false);
+  // Load dynamically generated pages.
+  fetch('content.json')
+    .then(function (res) {
+      if (!res.ok) {
+        throw new Error('Could not load content.json');
+      }
+      return res.json();
+    })
+    .then(function (data) {
+      if (!Array.isArray(data.border)) return;
+
+      var incoming = data.border
+        .filter(function (item) {
+          return item && item.image;
+        })
+        .map(function (item) {
+          return item.image;
+        });
+
+      if (incoming.length) {
+        pages = incoming;
+      }
+    })
+    .catch(function () {});
+
+  // Respect reduced-motion accessibility preferences.
+  if (reducedMotion) return;
+
+  var previousTime = 0;
+
+  function animate(time) {
+    if (!previousTime) {
+      previousTime = time;
     }
+
+    var delta = Math.min(
+      (time - previousTime) / 1000,
+      0.05
+    );
+
+    previousTime = time;
+
+    if (!document.hidden) {
+      ['left', 'right'].forEach(function (side) {
+        var column = columns[side];
+
+        // All pages travel upward at the same speed.
+        for (var i = 0; i < column.length; i++) {
+          column[i].y -= SPEED * delta;
+        }
+
+        for (var j = 0; j < column.length; j++) {
+          var card = column[j];
+
+          // Recycle pages immediately after the last page.
+          // Prevents random gaps and disappearing stretches.
+          if (card.y + PAGE_HEIGHT < 0) {
+            var tail = -Infinity;
+
+            for (var k = 0; k < column.length; k++) {
+              if (column[k] !== card) {
+                tail = Math.max(
+                  tail,
+                  column[k].y
+                );
+              }
+            }
+
+            card.y = tail + SPACING;
+            card.x = random(-28, 35);
+            card.turn = random(-17, 17);
+            card.phase = random(
+              0,
+              Math.PI * 2
+            );
+
+            card.box.style.width = (
+              phone
+                ? random(95, 155)
+                : random(165, 320)
+            ) + 'px';
+
+            card.retries = 0;
+            card.img.src = nextImage();
+          }
+
+          position(card, time);
+        }
+      });
+    }
+
+    window.requestAnimationFrame(animate);
   }
-  window.setInterval(advance, 630);
+
+  window.requestAnimationFrame(animate);
 })();
