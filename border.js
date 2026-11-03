@@ -1,305 +1,442 @@
 
-// Baton Rouge Alternative — seamless zine-page border.
-(function () {
-  'use strict';
+ // Baton Rouge Alternative — independent, climbing zine pages.
+ // Replace border.js only. The border styles are isolated from extra.css.
+ (function () {
+   'use strict';
 
-  var FALLBACK = [
-    'generated/page-27322a858e0bbf1.jpg',
-    'generated/page-b4325ee5c997dcf.jpg',
-    'generated/page-ab3b568df4b4807.jpg',
-    'generated/page-8a2099b584cdda5.jpg',
-    'generated/page-26e731b13dcf6be.jpg',
-    'generated/page-9fa55e91761e5af.jpg',
-    'generated/page-5be409a62689847.jpg',
-    'generated/page-2c75657355a09cd.jpg',
-    'generated/page-d0d70514e00683b.jpg',
-    'generated/page-592dafc08105138.jpg',
-    'generated/page-f49eb0aa94ec20f.jpg',
-    'generated/page-631fb2648b29b6c.jpg'
-  ];
+   var FALLBACK = [
+     'generated/page-27322a858e0bbf1.jpg',
+     'generated/page-b4325ee5c997dcf.jpg',
+     'generated/page-ab3b568df4b4807.jpg',
+     'generated/page-8a2099b584cdda5.jpg',
+     'generated/page-26e731b13dcf6be.jpg',
+     'generated/page-9fa55e91761e5af.jpg',
+     'generated/page-5be409a62689847.jpg',
+     'generated/page-2c75657355a09cd.jpg',
+     'generated/page-d0d70514e00683b.jpg',
+     'generated/page-592dafc08105138.jpg',
+     'generated/page-f49eb0aa94ec20f.jpg',
+     'generated/page-631fb2648b29b6c.jpg'
+   ];
 
-  if (document.getElementById('bralt-paper-border-style')) {
-    return;
-  }
+   if (document.getElementById('bralt-crawl-style')) return;
 
-  // Isolated CSS avoids conflicts with the older
-  // .border-stream and .floating-page rules.
-  var style = document.createElement('style');
-  style.id = 'bralt-paper-border-style';
-  style.textContent = [
-    '.bralt-paper-rail{position:fixed;top:0;bottom:0;',
-    'width:clamp(170px,20vw,320px);overflow:hidden;',
-    'pointer-events:none;z-index:0;opacity:.73;',
-    'isolation:isolate}',
-    '.bralt-paper-rail--left{left:0}',
-    '.bralt-paper-rail--right{right:0}',
-    '.bralt-paper-track{display:flex;flex-direction:column;',
-    'will-change:transform;animation:bralt-paper-scroll ',
-    'var(--bralt-paper-duration) linear infinite}',
-    '.bralt-paper-cycle{display:flex;flex-direction:column;',
-    'flex:none;min-height:0}',
-    '.bralt-paper-item{position:relative;display:block;',
-    'flex:none;transform-origin:center center}',
-    '.bralt-paper-item img{display:block;width:100%;',
-    'height:100%;object-fit:fill;filter:grayscale(1) ',
-    'contrast(1.12);box-shadow:0 3px 12px #0008}',
-    '@keyframes bralt-paper-scroll{',
-    'from{transform:translate3d(0,0,0)}',
-    'to{transform:translate3d(0,-50%,0)}}',
-    '@media(max-width:1200px){.bralt-paper-rail{',
-    'opacity:.51;width:clamp(145px,19vw,250px)}}',
-    '@media(max-width:700px){.bralt-paper-rail{',
-    'width:clamp(112px,32vw,164px);opacity:.4}}',
-    '@media(prefers-reduced-motion:reduce){',
-    '.bralt-paper-track{animation:none}}'
-  ].join('');
+   var style = document.createElement('style');
+   style.id = 'bralt-crawl-style';
+   style.textContent = [
+     '.bralt-crawl-rail{position:fixed;top:0;bottom:0;',
+     'width:clamp(215px,22vw,365px);overflow:hidden;',
+     'z-index:0;pointer-events:none;opacity:.72;contain:layout style}',
+     '.bralt-crawl-rail--left{left:-35px}',
+     '.bralt-crawl-rail--right{right:-35px}',
+     '.bralt-crawl-card{position:absolute;left:0;top:0;',
+     'transform-origin:center center;will-change:transform;',
+     'transition:transform 430ms cubic-bezier(.16,.75,.24,1),',
+     'width 430ms ease,height 430ms ease}',
+     '.bralt-crawl-card img{display:block;width:100%;height:100%;',
+     'object-fit:fill;filter:grayscale(1) contrast(1.12);',
+     'box-shadow:0 2px 12px #0008}',
+     '@media(max-width:1200px){.bralt-crawl-rail{',
+     'width:clamp(175px,23vw,280px);opacity:.48}}',
+     '@media(max-width:700px){.bralt-crawl-rail{',
+     'width:clamp(150px,43vw,200px);opacity:.38}',
+     '.bralt-crawl-rail--left{left:-83px}',
+     '.bralt-crawl-rail--right{right:-83px}}',
+     '@media(prefers-reduced-motion:reduce){',
+     '.bralt-crawl-card{transition:none}}'
+   ].join('');
+   document.head.appendChild(style);
 
-  document.head.appendChild(style);
+   var reduced = false;
+   try {
+     reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   } catch (e) {}
 
-  var loaded = [];
-  var rails = [];
-  var resizeHandle = null;
+   var pool = [];
+   var rails = [];
+   var running = false;
+   var imageCursor = 0;
 
-  function random(a, b) {
-    return a + Math.random() * (b - a);
-  }
+   function random(a, b) {
+     return a + Math.random() * (b - a);
+   }
 
-  function shuffle(input) {
-    var items = input.slice();
+   function between(x, a, b) {
+     return Math.max(a, Math.min(b, x));
+   }
 
-    for (var i = items.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = items[i];
-      items[i] = items[j];
-      items[j] = temp;
-    }
+   function shuffle(array) {
+     var result = array.slice();
+     for (var i = result.length - 1; i > 0; i--) {
+       var j = Math.floor(Math.random() * (i + 1));
+       var hold = result[i];
+       result[i] = result[j];
+       result[j] = hold;
+     }
+     return result;
+   }
 
-    return items;
-  }
+   function nextPage() {
+     if (!pool.length) return null;
+     imageCursor = (
+       imageCursor + 1 + Math.floor(random(0, 7))
+     ) % pool.length;
+     return pool[imageCursor];
+   }
 
-  // Load and decode the page before using it.
-  function preload(src) {
-    return new Promise(function (resolve) {
-      var image = new Image();
+   function preload(src) {
+     return new Promise(function (resolve) {
+       var img = new Image();
 
-      image.onload = function () {
-        var ready = function () {
-          resolve({
-            src: src,
-            ratio: image.naturalHeight / image.naturalWidth
-          });
-        };
+       img.onload = function () {
+         if (!img.naturalWidth || !img.naturalHeight) {
+           return resolve(null);
+         }
 
-        if (typeof image.decode === 'function') {
-          image.decode().then(ready, ready);
-        } else {
-          ready();
-        }
-      };
+         var done = function () {
+           resolve({
+             src: src,
+             ratio: img.naturalHeight / img.naturalWidth
+           });
+         };
 
-      image.onerror = function () {
-        resolve(null);
-      };
+         if (img.decode) {
+           img.decode().then(done, done);
+         } else {
+           done();
+         }
+       };
 
-      image.src = src;
-    });
-  }
+       img.onerror = function () {
+         resolve(null);
+       };
+       img.src = src;
+     });
+   }
 
-  function itemNode(data, width, left, gap, angle) {
-    var item = document.createElement('div');
-    item.className = 'bralt-paper-item';
+   function chooseWidth(rail) {
+     var mobile = window.innerWidth < 701;
+     return Math.round(
+       rail.width * random(
+         mobile ? .70 : .55,
+         mobile ? 1.00 : 1.02
+       )
+     );
+   }
 
-    item.style.width = width + 'px';
-    item.style.height =
-      Math.round(width * data.ratio) + 'px';
-    item.style.marginLeft = left + 'px';
-    item.style.marginBottom = gap + 'px';
-    item.style.transform =
-      'rotate(' + angle.toFixed(2) + 'deg)';
+   function chooseX(rail, width) {
+     return Math.round(
+       random(-10, Math.max(5, rail.width - width + 5))
+     );
+   }
 
-    var img = document.createElement('img');
-    img.src = data.src;
-    img.alt = '';
-    img.loading = 'eager';
-    img.decoding = 'async';
+   function apply(card, instant) {
+     var el = card.el;
 
-    item.appendChild(img);
-    return item;
-  }
+     if (instant) el.style.transition = 'none';
 
-  function createRail(side, pool) {
-    var rail = document.createElement('div');
+     el.style.width = Math.round(card.width) + 'px';
+     el.style.height = Math.round(card.height) + 'px';
+     el.style.transform =
+       'translate3d(' +
+       Math.round(card.x) + 'px,' +
+       Math.round(card.y) + 'px,0) rotate(' +
+       card.angle.toFixed(1) + 'deg)';
 
-    rail.className =
-      'bralt-paper-rail bralt-paper-rail--' + side;
+     if (instant) {
+       // Reposition offscreen without animating across the page.
+       void el.offsetHeight;
+       el.style.transition = '';
+     }
+   }
 
-    rail.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(rail);
-    rails.push(rail);
+   function newCard(rail, y) {
+     var data = nextPage();
+     if (!data) return null;
 
-    var railWidth = rail.getBoundingClientRect().width;
-    var narrow = window.innerWidth <= 700;
+     var width = chooseWidth(rail);
+     var el = document.createElement('div');
+     el.className = 'bralt-crawl-card';
 
-    // Ensure each strip is longer than the viewport.
-    var minHeight = Math.max(
-      1250,
-      window.innerHeight * 1.7 + 350
-    );
+     var img = document.createElement('img');
+     img.alt = '';
+     img.decoding = 'async';
+     img.loading = 'eager';
+     img.src = data.src;
 
-    var minItems = narrow ? 15 : 13;
+     el.appendChild(img);
+     rail.node.appendChild(el);
 
-    var cycle = document.createElement('div');
-    cycle.className = 'bralt-paper-cycle';
+     var card = {
+       rail: rail,
+       el: el,
+       img: img,
+       data: data,
+       x: chooseX(rail, width),
+       y: y,
+       width: width,
+       height: width * data.ratio,
+       angle: random(-17, 17),
+       due: performance.now() + random(70, 520)
+     };
 
-    var total = 0;
-    var index = 0;
-    var chosen = shuffle(pool);
+     rail.cards.push(card);
+     apply(card, true);
+     return card;
+   }
 
-    // Fill the strip with actual image dimensions.
-    // Pages stay assigned to their images permanently.
-    while (
-      (total < minHeight || index < minItems) &&
-      index < 100
-    ) {
-      if (
-        index > 0 &&
-        index % chosen.length === 0
-      ) {
-        chosen = shuffle(pool);
-      }
+   function appendAfterLast(rail) {
+     var tail = rail.cards.reduce(function (a, b) {
+       return !a || b.y > a.y ? b : a;
+     }, null);
 
-      var data = chosen[index % chosen.length];
+     // Overlap neighboring pages to protect against gaps.
+     var y = tail
+       ? tail.y + tail.height * .50
+       : -320;
 
-      var width = Math.round(
-        railWidth * random(
-          narrow ? .7 : .65,
-          narrow ? .92 : .94
-        )
-      );
+     return newCard(rail, y);
+   }
 
-      var offset = Math.round(
-        random(
-          3,
-          Math.max(4, railWidth - width - 4)
-        )
-      );
+   function ensureCoverage(rail) {
+     var need = window.innerHeight + 340;
+     var bottom = -Infinity;
 
-      var gap = Math.round(
-        random(
-          narrow ? 9 : 11,
-          narrow ? 22 : 26
-        )
-      );
+     rail.cards.forEach(function (c) {
+       bottom = Math.max(bottom, c.y + c.height);
+     });
 
-      var angle = random(-10, 10);
+     // Queue replacement pages before the bottom becomes empty.
+     var safety = 0;
+     while (bottom < need && safety++ < 80) {
+       var card = appendAfterLast(rail);
+       if (!card) break;
+       bottom = Math.max(bottom, card.y + card.height);
+     }
+   }
 
-      cycle.appendChild(
-        itemNode(data, width, offset, gap, angle)
-      );
+   function makeRail(side) {
+     var node = document.createElement('div');
+     node.className =
+       'bralt-crawl-rail bralt-crawl-rail--' + side;
+     node.setAttribute('aria-hidden', 'true');
+     document.body.appendChild(node);
 
-      total += Math.round(width * data.ratio) + gap;
-      index++;
-    }
+     var rail = {
+       node: node,
+       width: node.getBoundingClientRect().width,
+       cards: []
+     };
 
-    // Two identical strips form one endless loop.
-    var track = document.createElement('div');
-    track.className = 'bralt-paper-track';
+     rails.push(rail);
+     newCard(rail, -320);
+     ensureCoverage(rail);
+   }
 
-    track.appendChild(cycle);
-    track.appendChild(cycle.cloneNode(true));
-    rail.appendChild(track);
+   function recycle(rail, card) {
+     var tail = rail.cards.reduce(function (a, b) {
+       return b !== card && (!a || b.y > a.y)
+         ? b : a;
+     }, null);
 
-    // Duration is calculated from the actual strip height.
-    var measured = cycle.getBoundingClientRect().height;
-    var speed = narrow ? 58 : 76;
+     var data = nextPage();
+     if (!tail || !data) return;
 
-    track.style.setProperty(
-      '--bralt-paper-duration',
-      (measured / speed).toFixed(3) + 's'
-    );
-  }
+     card.data = data;
+     card.width = chooseWidth(rail);
+     card.height = card.width * data.ratio;
 
-  function build() {
-    rails.forEach(function (rail) {
-      rail.remove();
-    });
+     card.y = tail.y + tail.height * .50;
+     card.x = chooseX(rail, card.width);
+     card.angle = random(-17, 17);
+     card.due = performance.now() + random(100, 520);
 
-    rails = [];
+     // Change the image only once the page has left the screen.
+     card.img.src = data.src;
+     apply(card, true);
+   }
 
-    if (!loaded.length) return;
+   function crawl(now) {
+     if (!document.hidden && !reduced) {
+       rails.forEach(function (rail) {
+         var ordered = rail.cards.slice().sort(
+           function (a, b) {
+             return a.y - b.y;
+           }
+         );
 
-    createRail('left', loaded);
-    createRail('right', loaded);
-  }
+         // Each page climbs at its own pace.
+         ordered.forEach(function (card, i) {
+           if (now < card.due) return;
 
-  function start(paths) {
-    var unique = Array.from(
-      new Set(
-        paths.filter(function (src) {
-          return typeof src === 'string' && src.trim();
-        })
-      )
-    );
+           card.due = now + random(300, 535);
 
-    // Preload a bounded set, avoiding unnecessary downloads.
-    var selection = shuffle(unique).slice(0, 32);
+           var before = ordered[i - 1];
+           var after = ordered[i + 1];
+           var width = card.width;
 
-    Promise.all(selection.map(preload)).then(
-      function (results) {
-        loaded = results.filter(Boolean);
+           // Occasionally grow or shrink while climbing.
+           if (Math.random() < .28) {
+             var candidate = between(
+               width + random(-18, 18),
+               rail.width * .57,
+               rail.width * 1.02
+             );
 
-        if (!loaded.length) return;
+             if (
+               !after ||
+               after.y <=
+                 card.y + candidate * card.data.ratio - 28
+             ) {
+               width = candidate;
+             }
+           }
 
-        build();
+           var height = width * card.data.ratio;
 
-        // Recalculate sizes after a window resize.
-        window.addEventListener(
-          'resize',
-          function () {
-            window.clearTimeout(resizeHandle);
-            resizeHandle = window.setTimeout(build, 200);
-          },
-          { passive: true }
-        );
+           // Fast, irregular upward movements.
+           var destination = card.y - random(40, 86);
 
-        // Prevent background tab time jumps.
-        document.addEventListener(
-          'visibilitychange',
-          function () {
-            rails.forEach(function (rail) {
-              var track = rail.querySelector(
-                '.bralt-paper-track'
-              );
+           // Don't allow a gap beneath this page.
+           if (after) {
+             destination = Math.max(
+               destination,
+               after.y - height + 42
+             );
+           }
 
-              if (track) {
-                track.style.animationPlayState =
-                  document.hidden ? 'paused' : 'running';
-              }
-            });
-          }
-        );
-      }
-    );
-  }
+           // Don't overtake the page directly above.
+           if (before) {
+             destination = Math.max(
+               destination,
+               before.y + Math.min(
+                 65,
+                 before.height * .24
+               )
+             );
+           }
 
-  // Read the generated border-image catalog.
-  fetch('content.json')
-    .then(function (response) {
-      if (!response.ok) {
-        throw new Error('Failed to load border content');
-      }
-      return response.json();
-    })
-    .then(function (data) {
-      var paths = Array.isArray(data.border)
-        ? data.border.map(function (item) {
-            return item && item.image;
-          })
-        : [];
+           if (destination < card.y - 1) {
+             card.y = destination;
+             card.width = width;
+             card.height = height;
 
-      start(paths.length ? paths : FALLBACK);
-    })
-    .catch(function () {
-      start(FALLBACK);
-    });
-})();
+             // Random sideways jolts.
+             card.x = between(
+               card.x + random(-38, 38),
+               -12,
+               Math.max(5, rail.width - width + 10)
+             );
+
+             // Little climbing rotations.
+             card.angle = between(
+               card.angle + random(-12, 12),
+               -24,
+               24
+             );
+
+             apply(card, false);
+           }
+         });
+
+         // Replace only after the entire old page is gone.
+         ordered.forEach(function (card) {
+           if (
+             card.y +
+             card.height +
+             card.width * .26 < -75
+           ) {
+             recycle(rail, card);
+           }
+         });
+
+         ensureCoverage(rail);
+       });
+     } else if (document.hidden) {
+       // Avoid a huge catch-up jump when returning to the tab.
+       rails.forEach(function (rail) {
+         rail.cards.forEach(function (c) {
+           c.due = now + random(90, 510);
+         });
+       });
+     }
+
+     window.requestAnimationFrame(crawl);
+   }
+
+   function rebuild() {
+     rails.forEach(function (rail) {
+       rail.node.remove();
+     });
+
+     rails = [];
+     if (!pool.length) return;
+
+     imageCursor = Math.floor(random(0, pool.length));
+     makeRail('left');
+     makeRail('right');
+   }
+
+   function start(paths) {
+     var seen = Object.create(null);
+
+     var unique = paths.filter(function (src) {
+       if (
+         typeof src !== 'string' ||
+         !src.trim() ||
+         seen[src]
+       ) {
+         return false;
+       }
+       seen[src] = true;
+       return true;
+     });
+
+     // Preload and decode pages before the animation starts.
+     Promise.all(
+       shuffle(unique).slice(0, 35).map(preload)
+     ).then(function (results) {
+       pool = shuffle(results.filter(Boolean));
+       if (!pool.length) return;
+
+       rebuild();
+
+       if (!running) {
+         running = true;
+         window.requestAnimationFrame(crawl);
+
+         var resizeTimer;
+         window.addEventListener(
+           'resize',
+           function () {
+             clearTimeout(resizeTimer);
+             resizeTimer = setTimeout(rebuild, 220);
+           },
+           { passive: true }
+         );
+       }
+     });
+   }
+
+   fetch('content.json')
+     .then(function (response) {
+       if (!response.ok) {
+         throw new Error('Could not fetch content.json');
+       }
+       return response.json();
+     })
+     .then(function (data) {
+       var entries = Array.isArray(data.border)
+         ? data.border
+         : [];
+
+       var paths = entries.map(function (entry) {
+         return entry && entry.image;
+       });
+
+       start(paths.length ? paths : FALLBACK);
+     })
+     .catch(function () {
+       start(FALLBACK);
+     });
+ })();
