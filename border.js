@@ -1,7 +1,9 @@
 
-// Continuous zine-page collage along both sides of the homepage.
+// Baton Rouge Alternative — seamless zine-page border.
 (function () {
-  var staticPages = [
+  'use strict';
+
+  var FALLBACK = [
     'generated/page-27322a858e0bbf1.jpg',
     'generated/page-b4325ee5c997dcf.jpg',
     'generated/page-ab3b568df4b4807.jpg',
@@ -16,208 +18,288 @@
     'generated/page-631fb2648b29b6c.jpg'
   ];
 
-  var pages = staticPages.slice();
-  var phone = window.innerWidth < 700;
-  var reducedMotion = false;
-
-  try {
-    reducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches;
-  } catch (e) {}
-
-  // Page spacing and movement speed.
-  var PAGE_HEIGHT = 215;
-  var SPACING = phone ? 230 : 195;
-  var SPEED = phone ? 68 : 95;
-
-  // Automatically create enough pages for tall screens.
-  var COUNT = Math.max(
-    phone ? 5 : 8,
-    Math.ceil(
-      (window.innerHeight + 2 * PAGE_HEIGHT) / SPACING
-    ) + 1
-  );
-
-  var columns = { left: [], right: [] };
-  var cursor = Math.floor(Math.random() * pages.length);
-
-  function random(min, max) {
-    return min + Math.random() * (max - min);
+  if (document.getElementById('bralt-paper-border-style')) {
+    return;
   }
 
-  function nextImage() {
-    cursor = (
-      cursor + 1 + Math.floor(Math.random() * 7)
-    ) % pages.length;
+  // Isolated CSS avoids conflicts with the older
+  // .border-stream and .floating-page rules.
+  var style = document.createElement('style');
+  style.id = 'bralt-paper-border-style';
+  style.textContent = [
+    '.bralt-paper-rail{position:fixed;top:0;bottom:0;',
+    'width:clamp(170px,20vw,320px);overflow:hidden;',
+    'pointer-events:none;z-index:0;opacity:.73;',
+    'isolation:isolate}',
+    '.bralt-paper-rail--left{left:0}',
+    '.bralt-paper-rail--right{right:0}',
+    '.bralt-paper-track{display:flex;flex-direction:column;',
+    'will-change:transform;animation:bralt-paper-scroll ',
+    'var(--bralt-paper-duration) linear infinite}',
+    '.bralt-paper-cycle{display:flex;flex-direction:column;',
+    'flex:none;min-height:0}',
+    '.bralt-paper-item{position:relative;display:block;',
+    'flex:none;transform-origin:center center}',
+    '.bralt-paper-item img{display:block;width:100%;',
+    'height:100%;object-fit:fill;filter:grayscale(1) ',
+    'contrast(1.12);box-shadow:0 3px 12px #0008}',
+    '@keyframes bralt-paper-scroll{',
+    'from{transform:translate3d(0,0,0)}',
+    'to{transform:translate3d(0,-50%,0)}}',
+    '@media(max-width:1200px){.bralt-paper-rail{',
+    'opacity:.51;width:clamp(145px,19vw,250px)}}',
+    '@media(max-width:700px){.bralt-paper-rail{',
+    'width:clamp(112px,32vw,164px);opacity:.4}}',
+    '@media(prefers-reduced-motion:reduce){',
+    '.bralt-paper-track{animation:none}}'
+  ].join('');
 
-    return pages[cursor];
+  document.head.appendChild(style);
+
+  var loaded = [];
+  var rails = [];
+  var resizeHandle = null;
+
+  function random(a, b) {
+    return a + Math.random() * (b - a);
   }
 
-  // Gentle horizontal swaying without disturbing vertical spacing.
-  function position(card, time) {
-    var sway = reducedMotion
-      ? 0
-      : Math.sin(time / 1800 + card.phase) * 12;
+  function shuffle(input) {
+    var items = input.slice();
 
-    var tilt = reducedMotion
-      ? 0
-      : Math.sin(time / 2500 + card.phase) * 4;
+    for (var i = items.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = items[i];
+      items[i] = items[j];
+      items[j] = temp;
+    }
 
-    card.box.style.transform =
-      'translate3d(' +
-      Math.round(card.x + sway) + 'px,' +
-      Math.round(card.y) + 'px,0) rotate(' +
-      (card.turn + tilt).toFixed(2) + 'deg)';
+    return items;
   }
 
-  function createColumn(side) {
-    var rail = document.createElement('div');
-    rail.className = 'border-stream ' + side;
-    rail.setAttribute('aria-hidden', 'true');
+  // Load and decode the page before using it.
+  function preload(src) {
+    return new Promise(function (resolve) {
+      var image = new Image();
 
-    document.body.appendChild(rail);
+      image.onload = function () {
+        var ready = function () {
+          resolve({
+            src: src,
+            ratio: image.naturalHeight / image.naturalWidth
+          });
+        };
 
-    for (var i = 0; i < COUNT; i++) {
-      var box = document.createElement('div');
-      box.className = 'floating-page';
-
-      // Disable transitions for smooth frame-by-frame movement.
-      box.style.transition = 'none';
-      box.style.width = (
-        phone ? random(95, 155) : random(165, 320)
-      ) + 'px';
-
-      var img = document.createElement('img');
-      img.alt = '';
-      img.loading = 'eager';
-      img.decoding = 'async';
-
-      box.appendChild(img);
-      rail.appendChild(box);
-
-      var card = {
-        box: box,
-        img: img,
-        x: random(-28, 35),
-        y: -PAGE_HEIGHT + i * SPACING,
-        turn: random(-17, 17),
-        phase: random(0, Math.PI * 2),
-        retries: 0
+        if (typeof image.decode === 'function') {
+          image.decode().then(ready, ready);
+        } else {
+          ready();
+        }
       };
 
-      columns[side].push(card);
+      image.onerror = function () {
+        resolve(null);
+      };
 
-      // Retry another page image if one fails to load.
-      (function (item) {
-        item.img.onerror = function () {
-          if (item.retries++ < 5) {
-            item.img.src = nextImage();
-          }
-        };
-      })(card);
-
-      img.src = nextImage();
-      position(card, 0);
-    }
+      image.src = src;
+    });
   }
 
-  createColumn('left');
-  createColumn('right');
+  function itemNode(data, width, left, gap, angle) {
+    var item = document.createElement('div');
+    item.className = 'bralt-paper-item';
 
-  // Load dynamically generated pages.
-  fetch('content.json')
-    .then(function (res) {
-      if (!res.ok) {
-        throw new Error('Could not load content.json');
-      }
-      return res.json();
-    })
-    .then(function (data) {
-      if (!Array.isArray(data.border)) return;
+    item.style.width = width + 'px';
+    item.style.height =
+      Math.round(width * data.ratio) + 'px';
+    item.style.marginLeft = left + 'px';
+    item.style.marginBottom = gap + 'px';
+    item.style.transform =
+      'rotate(' + angle.toFixed(2) + 'deg)';
 
-      var incoming = data.border
-        .filter(function (item) {
-          return item && item.image;
-        })
-        .map(function (item) {
-          return item.image;
-        });
+    var img = document.createElement('img');
+    img.src = data.src;
+    img.alt = '';
+    img.loading = 'eager';
+    img.decoding = 'async';
 
-      if (incoming.length) {
-        pages = incoming;
-      }
-    })
-    .catch(function () {});
+    item.appendChild(img);
+    return item;
+  }
 
-  // Respect reduced-motion accessibility preferences.
-  if (reducedMotion) return;
+  function createRail(side, pool) {
+    var rail = document.createElement('div');
 
-  var previousTime = 0;
+    rail.className =
+      'bralt-paper-rail bralt-paper-rail--' + side;
 
-  function animate(time) {
-    if (!previousTime) {
-      previousTime = time;
-    }
+    rail.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(rail);
+    rails.push(rail);
 
-    var delta = Math.min(
-      (time - previousTime) / 1000,
-      0.05
+    var railWidth = rail.getBoundingClientRect().width;
+    var narrow = window.innerWidth <= 700;
+
+    // Ensure each strip is longer than the viewport.
+    var minHeight = Math.max(
+      1250,
+      window.innerHeight * 1.7 + 350
     );
 
-    previousTime = time;
+    var minItems = narrow ? 15 : 13;
 
-    if (!document.hidden) {
-      ['left', 'right'].forEach(function (side) {
-        var column = columns[side];
+    var cycle = document.createElement('div');
+    cycle.className = 'bralt-paper-cycle';
 
-        // All pages travel upward at the same speed.
-        for (var i = 0; i < column.length; i++) {
-          column[i].y -= SPEED * delta;
-        }
+    var total = 0;
+    var index = 0;
+    var chosen = shuffle(pool);
 
-        for (var j = 0; j < column.length; j++) {
-          var card = column[j];
+    // Fill the strip with actual image dimensions.
+    // Pages stay assigned to their images permanently.
+    while (
+      (total < minHeight || index < minItems) &&
+      index < 100
+    ) {
+      if (
+        index > 0 &&
+        index % chosen.length === 0
+      ) {
+        chosen = shuffle(pool);
+      }
 
-          // Recycle pages immediately after the last page.
-          // Prevents random gaps and disappearing stretches.
-          if (card.y + PAGE_HEIGHT < 0) {
-            var tail = -Infinity;
+      var data = chosen[index % chosen.length];
 
-            for (var k = 0; k < column.length; k++) {
-              if (column[k] !== card) {
-                tail = Math.max(
-                  tail,
-                  column[k].y
-                );
-              }
-            }
+      var width = Math.round(
+        railWidth * random(
+          narrow ? .7 : .65,
+          narrow ? .92 : .94
+        )
+      );
 
-            card.y = tail + SPACING;
-            card.x = random(-28, 35);
-            card.turn = random(-17, 17);
-            card.phase = random(
-              0,
-              Math.PI * 2
-            );
+      var offset = Math.round(
+        random(
+          3,
+          Math.max(4, railWidth - width - 4)
+        )
+      );
 
-            card.box.style.width = (
-              phone
-                ? random(95, 155)
-                : random(165, 320)
-            ) + 'px';
+      var gap = Math.round(
+        random(
+          narrow ? 9 : 11,
+          narrow ? 22 : 26
+        )
+      );
 
-            card.retries = 0;
-            card.img.src = nextImage();
-          }
+      var angle = random(-10, 10);
 
-          position(card, time);
-        }
-      });
+      cycle.appendChild(
+        itemNode(data, width, offset, gap, angle)
+      );
+
+      total += Math.round(width * data.ratio) + gap;
+      index++;
     }
 
-    window.requestAnimationFrame(animate);
+    // Two identical strips form one endless loop.
+    var track = document.createElement('div');
+    track.className = 'bralt-paper-track';
+
+    track.appendChild(cycle);
+    track.appendChild(cycle.cloneNode(true));
+    rail.appendChild(track);
+
+    // Duration is calculated from the actual strip height.
+    var measured = cycle.getBoundingClientRect().height;
+    var speed = narrow ? 58 : 76;
+
+    track.style.setProperty(
+      '--bralt-paper-duration',
+      (measured / speed).toFixed(3) + 's'
+    );
   }
 
-  window.requestAnimationFrame(animate);
+  function build() {
+    rails.forEach(function (rail) {
+      rail.remove();
+    });
+
+    rails = [];
+
+    if (!loaded.length) return;
+
+    createRail('left', loaded);
+    createRail('right', loaded);
+  }
+
+  function start(paths) {
+    var unique = Array.from(
+      new Set(
+        paths.filter(function (src) {
+          return typeof src === 'string' && src.trim();
+        })
+      )
+    );
+
+    // Preload a bounded set, avoiding unnecessary downloads.
+    var selection = shuffle(unique).slice(0, 32);
+
+    Promise.all(selection.map(preload)).then(
+      function (results) {
+        loaded = results.filter(Boolean);
+
+        if (!loaded.length) return;
+
+        build();
+
+        // Recalculate sizes after a window resize.
+        window.addEventListener(
+          'resize',
+          function () {
+            window.clearTimeout(resizeHandle);
+            resizeHandle = window.setTimeout(build, 200);
+          },
+          { passive: true }
+        );
+
+        // Prevent background tab time jumps.
+        document.addEventListener(
+          'visibilitychange',
+          function () {
+            rails.forEach(function (rail) {
+              var track = rail.querySelector(
+                '.bralt-paper-track'
+              );
+
+              if (track) {
+                track.style.animationPlayState =
+                  document.hidden ? 'paused' : 'running';
+              }
+            });
+          }
+        );
+      }
+    );
+  }
+
+  // Read the generated border-image catalog.
+  fetch('content.json')
+    .then(function (response) {
+      if (!response.ok) {
+        throw new Error('Failed to load border content');
+      }
+      return response.json();
+    })
+    .then(function (data) {
+      var paths = Array.isArray(data.border)
+        ? data.border.map(function (item) {
+            return item && item.image;
+          })
+        : [];
+
+      start(paths.length ? paths : FALLBACK);
+    })
+    .catch(function () {
+      start(FALLBACK);
+    });
 })();
