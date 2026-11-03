@@ -1,0 +1,17 @@
+VIDEOS — HOW TO ADD A VIDEO
+
+1. Add an MP4 file inside this videos/ folder (or any subfolder).
+   Example: videos/Blue Hour -- Davy Goldsmith.mp4
+2. Commit/upload your file to GitHub. The automatic workflow finds it,
+   prepares a thumbnail (if ffmpeg is available), and adds it to Videos.
+3. No changes to content.json or HTML needed.
+
+Names: "Title -- Artist.mp4" becomes Title by Artist.
+You can also place videos/Blue Hour.jpg or videos/Blue Hour.png next to
+"Blue Hour.mp4" for a custom preview image.
+
+Best compatibility: MP4 (H.264 video + AAC audio). WebM works on many
+browsers too, but MP4 is the safest for iPhones and Windows laptops.
+Large files: GitHub refuses normal uploads >=100 MB per file. Compress
+your video with H.264, or arrange external hosting if it is larger.
+This EXAMPLE.txt file is just instructions and does not appear as a video.

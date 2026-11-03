@@ -1,0 +1,14 @@
+DAVY — QUICK START
+
+One time: On GitHub, open Settings → Pages and select Source: GitHub Actions.
+Afterward: Upload a file to the right folder, commit to main, and the site updates automatically.
+
+Add .mp3 to music; .png/.jpg to art; .txt to poetry/articles; .mp4 to videos; .pdf to zines.
+Read the EXAMPLE.txt in each folder for title and author naming.
+
+Do NOT edit content.json. The workflow generates it for the published site.
+To see updates, visit Actions → Publish Baton Rouge Alternative.
+
+The “Fill the Form” button links to your EXACT original PDF. It has not been modified.
+
+Full instructions are in README.md.

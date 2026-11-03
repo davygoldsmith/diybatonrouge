@@ -1,0 +1,689 @@
+:root {
+  --background: #000000;
+  --text: #ffffff;
+  --muted: #cfcfcf;
+  --panel: #151515;
+  --panel-soft: #222222;
+  --line: rgba(255, 255, 255, 0.25);
+  --button-bg: #ffffff;
+  --button-text: #000000;
+  --max-width: 1120px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.site-header {
+  width: 100%;
+  padding: 34px 18px 18px;
+  background: var(--background);
+}
+
+.main-nav {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: clamp(12px, 3vw, 34px);
+  font-family: "Courier New", monospace;
+  letter-spacing: 1px;
+}
+
+
+.main-nav a:nth-child(1) { transform: translateY(3px); }
+.main-nav a:nth-child(2) { transform: translateY(-5px); }
+.main-nav a:nth-child(3) { transform: translateY(6px); }
+.main-nav a:nth-child(4) { transform: translateY(-3px); }
+.main-nav a:nth-child(5) { transform: translateY(4px); }
+
+.main-nav a {
+  display: inline-block;
+  color: var(--text);
+  text-decoration: none;
+  font-size: clamp(1rem, 2vw, 1.45rem);
+  font-weight: 400;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 4px;
+}
+
+.main-nav a:hover,
+.main-nav a.active {
+  border-bottom-color: var(--text);
+}
+
+.page {
+  width: min(var(--max-width), calc(100% - 32px));
+  margin: 0 auto;
+  padding: 42px 0 80px;
+}
+
+.intro-panel {
+  text-align: center;
+  margin-bottom: 34px;
+}
+
+.eyebrow,
+.small-label {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-family: "Courier New", monospace;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
+
+h1,
+h2 {
+  margin: 0;
+  line-height: 1.05;
+  font-weight: 400;
+}
+
+h1 {
+  font-size: clamp(3rem, 8vw, 5.7rem);
+}
+
+h2 {
+  font-size: clamp(1.35rem, 3vw, 2.2rem);
+}
+
+.intro-copy {
+  max-width: 680px;
+  margin: 20px auto 0;
+  color: var(--muted);
+  font-family: "Courier New", monospace;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.zine-browser {
+  margin-top: 18px;
+}
+
+.issue-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.issue-tab,
+.text-button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font: 400 0.98rem "Courier New", monospace;
+  border-radius: 999px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.issue-tab:hover,
+.issue-tab.active,
+.text-button:hover {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-bg);
+}
+
+.reader-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 18px;
+}
+
+.reader-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.page-count {
+  margin: 0;
+  font-family: "Courier New", monospace;
+  color: var(--muted);
+}
+
+.slider-frame {
+  position: relative;
+  background: var(--panel-soft);
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.slider-frame img {
+  display: block;
+  max-width: 100%;
+  max-height: 78vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.slide-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 52px;
+  height: 72px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 2.5rem;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.slide-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.previous {
+  left: 10px;
+}
+
+.next {
+  right: 10px;
+}
+
+.reader-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.downloads-page {
+  max-width: 860px;
+}
+
+.download-intro h1 {
+  font-size: clamp(2.5rem, 6vw, 4.4rem);
+  margin-bottom: 24px;
+}
+
+.download-intro p,
+.download-note {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+.download-list {
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+  margin: 48px auto;
+}
+
+.download-button,
+.outline-button,
+.email-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 220px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+}
+
+.download-button {
+  color: var(--button-text);
+  background: var(--button-bg);
+}
+
+.download-button:hover,
+.email-button:hover {
+  transform: translateY(-1px);
+}
+
+.about-page {
+  max-width: 1040px;
+}
+
+.about-hero {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  align-items: center;
+  gap: 30px;
+}
+
+.about-hero h1 {
+  font-size: clamp(3.2rem, 8vw, 5.9rem);
+  letter-spacing: -1px;
+}
+
+.location-note {
+  text-align: center;
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  line-height: 1.4;
+}
+
+.location-note p {
+  margin: 0 0 6px;
+}
+
+.outline-button {
+  min-width: auto;
+  margin-top: 22px;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  background: transparent;
+}
+
+.outline-button:hover {
+  background: #ffffff;
+  color: #000000;
+}
+
+.about-copy {
+  max-width: 780px;
+  margin: 60px 0 0 44px;
+}
+
+.about-copy p {
+  margin: 0 0 44px;
+  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  line-height: 1.28;
+  font-weight: 400;
+}
+
+.email-button {
+  margin-left: min(28vw, 330px);
+  background: #c9c9c9;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    padding-top: 22px;
+  }
+
+  .main-nav {
+    gap: 14px;
+    justify-content: space-between;
+  }
+
+  
+.main-nav a:nth-child(1) { transform: translateY(3px); }
+.main-nav a:nth-child(2) { transform: translateY(-5px); }
+.main-nav a:nth-child(3) { transform: translateY(6px); }
+.main-nav a:nth-child(4) { transform: translateY(-3px); }
+.main-nav a:nth-child(5) { transform: translateY(4px); }
+
+.main-nav a {
+    font-size: 0.95rem;
+  }
+
+  .page {
+    width: min(100% - 22px, var(--max-width));
+    padding-top: 28px;
+  }
+
+  .issue-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding-bottom: 6px;
+  }
+
+  .issue-tab {
+    flex: 0 0 auto;
+  }
+
+  .reader-card {
+    padding: 12px;
+  }
+
+  .reader-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .slider-frame {
+    min-height: 360px;
+  }
+
+  .slide-btn {
+    width: 22px;
+    height: 46px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.92);
+    color: #ff2A00;
+    font-size: 1.45rem;
+    font-weight: 400;
+    line-height: 1;
+    box-shadow: none;
+    opacity: 0.5;
+  }
+
+  .slide-btn:hover,
+  .slide-btn:focus,
+  .slide-btn:focus-visible {
+    background: #000000;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
+    outline: none;
+  }
+
+  .previous {
+    left: 4px;
+  }
+
+  .next {
+    right: 4px;
+  }
+
+  .about-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .location-note {
+    text-align: left;
+  }
+
+  .about-copy {
+    margin: 44px 0 0;
+  }
+
+  .about-copy p {
+    font-size: 1.45rem;
+  }
+
+  .email-button {
+    margin-left: 0;
+  }
+}
+
+/* Zine download cards */
+.download-list {
+  width: min(900px, calc(100vw - 40px));
+  margin: 34px 0 58px 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.zine-cover-grid {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.zine-cover-grid--main {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.zine-cover {
+  --cover-width: 175px;
+  position: relative;
+  display: block;
+  width: var(--cover-width);
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.88);
+  border-radius: 18px;
+  background: #f4f4f4;
+  color: #ffffff;
+  text-decoration: none;
+  line-height: 0;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.22);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.zine-cover--large {
+  --cover-width: 240px;
+  border-radius: 20px;
+}
+
+.zine-cover--medium {
+  --cover-width: 200px;
+  height: 250px;
+  border-radius: 18px;
+}
+
+.zine-cover--small {
+  --cover-width: 160px;
+  height: 200px;
+  border-radius: 18px;
+}
+
+.zine-cover img {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #ffffff;
+}
+
+.zine-cover--medium img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.zine-cover::after {
+  content: "";
+  position: absolute;
+  inset: 68% 0 0;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.72));
+  pointer-events: none;
+}
+
+.zine-cover-label {
+  position: absolute;
+  z-index: 2;
+  left: 7px;
+  right: 7px;
+  bottom: 7px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.15;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+}
+
+.zine-cover--small .zine-cover-label {
+  font-size: 0.68rem;
+}
+
+.zine-cover:hover,
+.zine-cover:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 20px rgba(0, 0, 0, 0.28);
+}
+
+.zine-cover:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.zine-cover--missing {
+  min-height: 138px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 28% 25%, rgba(255,255,255,0.18) 0 5%, transparent 6%),
+    radial-gradient(circle at 72% 70%, rgba(255,255,255,0.13) 0 4%, transparent 5%),
+    #222222;
+}
+
+.zine-cover--medium.zine-cover--missing {
+  min-height: 150px;
+}
+
+.zine-cover--small.zine-cover--missing {
+  min-height: 205px;
+}
+
+.zine-cover--missing::after {
+  inset: 55% 0 0;
+}
+
+.zine-cover-missing-text {
+  position: relative;
+  z-index: 1;
+  width: 84%;
+  padding: 0 4px 26px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.08;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.zine-cover--small .zine-cover-missing-text {
+  font-size: 0.96rem;
+}
+
+.download-divider {
+  width: min(820px, 100%);
+  margin: 0 auto;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+  text-align: center;
+}
+
+.download-divider p {
+  margin: 0 auto;
+  max-width: 760px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(0.96rem, 1.7vw, 1.12rem);
+  line-height: 1.35;
+}
+
+.download-divider .outline-button {
+  margin-top: 18px;
+}
+
+@media (max-width: 760px) {
+  .download-list {
+    width: calc(100vw - 24px);
+    margin-top: 30px;
+    gap: 26px;
+  }
+
+  .zine-cover-grid,
+  .zine-cover-grid--main {
+    max-width: 100%;
+    gap: 14px 12px;
+  }
+
+  .zine-cover--large {
+    --cover-width: min(180px, calc((100vw - 50px) / 2));
+  }
+
+  .zine-cover--medium {
+    --cover-width: min(170px, calc((100vw - 50px) / 2));
+  }
+
+  .zine-cover--small {
+    --cover-width: min(165px, calc((100vw - 50px) / 2));
+  }
+
+  .zine-cover--missing {
+    min-height: 130px;
+  }
+
+  .zine-cover--small.zine-cover--missing {
+    min-height: 195px;
+  }
+}
+
+@media (max-width: 480px) {
+  .download-list {
+    width: calc(100vw - 18px);
+    gap: 24px;
+  }
+
+  .zine-cover-grid {
+    gap: 12px 8px;
+  }
+
+  .zine-cover--large,
+  .zine-cover--medium,
+  .zine-cover--small {
+    --cover-width: calc((100vw - 38px) / 2);
+  }
+
+  .zine-cover-label,
+  .zine-cover--small .zine-cover-label {
+    left: 5px;
+    right: 5px;
+    bottom: 6px;
+    font-size: 0.66rem;
+  }
+
+  .zine-cover-missing-text,
+  .zine-cover--small .zine-cover-missing-text {
+    font-size: 0.86rem;
+  }
+
+  .zine-cover--missing {
+    min-height: 122px;
+  }
+
+  .zine-cover--small.zine-cover--missing {
+    min-height: 185px;
+  }
+}
+
+
+@media (max-width: 760px) {
+  .zine-cover--medium {
+    --cover-width: min(160px, calc((100vw - 50px) / 2));
+    height: 200px;
+  }
+
+  .zine-cover--medium.zine-cover--missing {
+    min-height: 144px;
+  }
+}
+
+@media (max-width: 480px) {
+  .zine-cover--medium {
+    --cover-width: calc((100vw - 38px) / 2);
+    height: calc(((100vw - 38px) / 2) * 0.68);
+  }
+
+  .zine-cover--medium.zine-cover--missing {
+    min-height: calc(((100vw - 38px) / 2) * 0.68);
+  }
+}

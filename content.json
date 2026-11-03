@@ -1,0 +1,259 @@
+{
+  "music": [
+    {
+      "title": "Sew Your Death Into My Body",
+      "artist": "Davy Goldsmith",
+      "album": "EP Grief Enough to Turn Earth",
+      "url": "music/What%20about%20the%20Teeth/EP%20Grief%20Enough%20to%20Turn%20Earth/01%20Sew%20Your%20Death%20Into%20My%20Body.mp3",
+      "cover": "music/What%20about%20the%20Teeth/EP%20Grief%20Enough%20to%20Turn%20Earth/EP%20Cover.jpg"
+    },
+    {
+      "title": "Wilting",
+      "artist": "Davy Goldsmith/Emily Goldsmith",
+      "album": "EP Grief Enough to Turn Earth",
+      "url": "music/What%20about%20the%20Teeth/EP%20Grief%20Enough%20to%20Turn%20Earth/02%20Wilting.mp3",
+      "cover": "music/What%20about%20the%20Teeth/EP%20Grief%20Enough%20to%20Turn%20Earth/EP%20Cover.jpg"
+    },
+    {
+      "title": "Clitoris Poem",
+      "artist": "Davy Goldsmith",
+      "album": "EP Grief Enough to Turn Earth",
+      "url": "music/What%20about%20the%20Teeth/EP%20Grief%20Enough%20to%20Turn%20Earth/03%20Clitoris%20Poem.mp3",
+      "cover": "music/What%20about%20the%20Teeth/EP%20Grief%20Enough%20to%20Turn%20Earth/EP%20Cover.jpg"
+    },
+    {
+      "title": "Ponoma Ponoma Persephone",
+      "artist": "Davy Goldsmith",
+      "album": "EP Grief Enough to Turn Earth",
+      "url": "music/What%20about%20the%20Teeth/EP%20Grief%20Enough%20to%20Turn%20Earth/04%20Ponoma%20Ponoma%20Persephone.mp3",
+      "cover": "music/What%20about%20the%20Teeth/EP%20Grief%20Enough%20to%20Turn%20Earth/EP%20Cover.jpg"
+    }
+  ],
+  "art": [
+    {
+      "title": "Noon Dusk Night",
+      "artist": "Davy Goldsmith",
+      "url": "art/noon-dusk-night.png"
+    }
+  ],
+  "poetry": [
+    {
+      "title": "Oracle",
+      "artist": "Hasan",
+      "url": "poetry/Oracle.txt"
+    },
+    {
+      "title": "Their Screeches Were the Death of Me",
+      "artist": "Davy Goldsmith",
+      "url": "poetry/Their-Screeches-Were-the-Death-of-Me.txt"
+    }
+  ],
+  "articles": [],
+  "videos": [],
+  "border": [
+    {
+      "image": "generated/page-27322a858e0bbf1.jpg",
+      "label": "1193, page 1"
+    },
+    {
+      "image": "generated/page-b4325ee5c997dcf.jpg",
+      "label": "1193, page 4"
+    },
+    {
+      "image": "generated/page-ab3b568df4b4807.jpg",
+      "label": "1193, page 6"
+    },
+    {
+      "image": "generated/page-8a2099b584cdda5.jpg",
+      "label": "Palestine, page 1"
+    },
+    {
+      "image": "generated/page-26e731b13dcf6be.jpg",
+      "label": "a dandelion, page 1"
+    },
+    {
+      "image": "generated/page-9fa55e91761e5af.jpg",
+      "label": "a dandelion, page 2"
+    },
+    {
+      "image": "generated/page-5be409a62689847.jpg",
+      "label": "a dandelion, page 5"
+    },
+    {
+      "image": "generated/page-2c75657355a09cd.jpg",
+      "label": "book a local show, page 1"
+    },
+    {
+      "image": "generated/page-d0d70514e00683b.jpg",
+      "label": "book a local show, page 2"
+    },
+    {
+      "image": "generated/page-592dafc08105138.jpg",
+      "label": "book a local show, page 8"
+    },
+    {
+      "image": "generated/page-f49eb0aa94ec20f.jpg",
+      "label": "deflock hattiesburg, page 1"
+    },
+    {
+      "image": "generated/page-631fb2648b29b6c.jpg",
+      "label": "deflock hattiesburg, page 2"
+    },
+    {
+      "image": "generated/page-664af60f192f256.jpg",
+      "label": "deflock hattiesburg, page 3"
+    },
+    {
+      "image": "generated/page-1b6a97044792c8c.jpg",
+      "label": "diy earnest appeal, page 1"
+    },
+    {
+      "image": "generated/page-93b0ee512193dc6.jpg",
+      "label": "diy earnest appeal, page 6"
+    },
+    {
+      "image": "generated/page-49923a1392e1383.jpg",
+      "label": "diy earnest appeal, page 11"
+    },
+    {
+      "image": "generated/page-2a65b58cc24dfe1.jpg",
+      "label": "diy earnest appeal, page 12"
+    },
+    {
+      "image": "generated/page-aaad262db00a0aa.jpg",
+      "label": "do not assimilate, page 1"
+    },
+    {
+      "image": "generated/page-e2e2178bfd8d721.jpg",
+      "label": "do not assimilate, page 2"
+    },
+    {
+      "image": "generated/page-5dcbe3710f937df.jpg",
+      "label": "do not assimilate, page 3"
+    },
+    {
+      "image": "generated/page-f49daf53a82dee5.jpg",
+      "label": "do not assimilate, page 5"
+    },
+    {
+      "image": "generated/page-8f7328fd811dab1.jpg",
+      "label": "how to make something alternative, page 1"
+    },
+    {
+      "image": "generated/page-d1d96b5aa3c691b.jpg",
+      "label": "how to make something alternative, page 2"
+    },
+    {
+      "image": "generated/page-a406a5ddb91e5eb.jpg",
+      "label": "how to make something alternative, page 8"
+    },
+    {
+      "image": "generated/page-b3f363bc1320fa6.jpg",
+      "label": "how to, page 1"
+    },
+    {
+      "image": "generated/page-a88cc74d05d846c.jpg",
+      "label": "how to, page 2"
+    },
+    {
+      "image": "generated/page-9008b5268fc3950.jpg",
+      "label": "how to, page 4"
+    },
+    {
+      "image": "generated/page-c153a6e4a0a2cd0.jpg",
+      "label": "know ur rights, page 1"
+    },
+    {
+      "image": "generated/page-7ca3dcedd63ecb8.jpg",
+      "label": "know ur rights, page 2"
+    },
+    {
+      "image": "generated/page-4542901a3170b58.jpg",
+      "label": "know ur rights, page 3"
+    },
+    {
+      "image": "generated/page-610077468f95c19.jpg",
+      "label": "know ur rights, page 9"
+    },
+    {
+      "image": "generated/page-1924999833fd639.jpg",
+      "label": "know ur rights ES, page 1"
+    },
+    {
+      "image": "generated/page-dd327e104eab579.jpg",
+      "label": "know ur rights ES, page 2"
+    },
+    {
+      "image": "generated/page-6a3fc58c6ec3367.jpg",
+      "label": "know ur rights ES, page 14"
+    },
+    {
+      "image": "generated/page-a4ea31d5e1e1bd8.jpg",
+      "label": "know ur rights ES, page 16"
+    },
+    {
+      "image": "generated/page-eefe521137ed139.jpg",
+      "label": "lateral networking, page 1"
+    },
+    {
+      "image": "generated/page-948e3e93fca19a7.jpg",
+      "label": "lateral networking, page 2"
+    },
+    {
+      "image": "generated/page-7a9241b3241909d.jpg",
+      "label": "lateral networking, page 3"
+    },
+    {
+      "image": "generated/page-640151f60f10fef.jpg",
+      "label": "lateral networking, page 18"
+    },
+    {
+      "image": "generated/page-13bf4b1d422a0de.jpg",
+      "label": "liberty day, page 1"
+    },
+    {
+      "image": "generated/page-a4649c8616a5afe.jpg",
+      "label": "liberty day, page 2"
+    },
+    {
+      "image": "generated/page-6ce9b38192eefc3.jpg",
+      "label": "liberty day, page 5"
+    },
+    {
+      "image": "generated/page-a30141dc17d4a9e.jpg",
+      "label": "resist ice, page 1"
+    },
+    {
+      "image": "generated/page-17378ad19c15cf8.jpg",
+      "label": "resist ice, page 2"
+    },
+    {
+      "image": "generated/page-27df177a47dce5a.jpg",
+      "label": "resist ice, page 3"
+    },
+    {
+      "image": "generated/page-761fd28df106058.jpg",
+      "label": "resist ice, page 5"
+    },
+    {
+      "image": "generated/page-849dc5584e3336a.jpg",
+      "label": "run sound, page 1"
+    },
+    {
+      "image": "generated/page-7deaf5b6730ae3a.jpg",
+      "label": "run sound, page 30"
+    },
+    {
+      "image": "generated/page-eb5a8349f0a209f.jpg",
+      "label": "run sound, page 35"
+    },
+    {
+      "image": "generated/page-38628e0acddb76c.jpg",
+      "label": "so we went to protest, page 1"
+    },
+    {
+      "image": "generated/page-78d59a446ae323f.jpg",
+      "label": "so we went to protest, page 2"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+POETRY: Put each piece in its own .txt file, in this folder or subfolder.
+First line: Title by Artist Name (or simply Title).
+Blank line, then the original poem with its spaces, tabs, and line breaks.
+Commit the file. The gallery updates automatically without editing JSON.
+EXAMPLE.txt is ignored.

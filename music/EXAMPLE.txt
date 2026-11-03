@@ -1,0 +1,6 @@
+MUSIC: Add MP3 files under music/, nested folders are okay.
+Recommended: music/Artist/Album/01 Song Name.mp3
+Place cover.jpg/png (or EP Cover.jpg) in same album folder.
+The workflow reads MP3 metadata (when present), or uses names/folders.
+Commit the files; no edits to content.json required.
+EXAMPLE.txt is ignored.

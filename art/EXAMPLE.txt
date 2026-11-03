@@ -1,0 +1,4 @@
+ART: Add JPG, JPEG, PNG, WEBP, GIF or AVIF images here or in subfolders.
+File name becomes title; optional name: Title -- Artist.png
+Commit the file; the gallery automatically updates. No JSON changes.
+EXAMPLE.txt is ignored.

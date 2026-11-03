@@ -1,0 +1,5 @@
+ARTICLES: Put a .txt file here or inside a subfolder.
+First line: Article Title by Author Name
+Blank line, then the body. Preserve manual line breaks and blank lines.
+Commit the file; GitHub Actions updates the gallery automatically.
+EXAMPLE.txt is ignored by the site.

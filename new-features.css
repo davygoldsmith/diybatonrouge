@@ -1,0 +1,97 @@
+/* Baton Rouge Alternative / 2026 — restrained, print-like additions. */
+.home-actions {display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:12px 13px;margin:2px 0 55px}
+.home-actions .contact-davy {margin:0;padding:12px 16px;font-size:clamp(12px,1.5vw,17px);white-space:nowrap;letter-spacing:0}
+.home-actions .contact-davy span {margin-left:5px}
+.br-small-label {font:12px/1.4 'Courier New',monospace;letter-spacing:.13em;color:#bdbdbd;margin:0 0 12px}
+.br-zine-browser {margin:12px auto 80px;max-width:1060px;padding:0 4px}
+.br-browser-intro {text-align:center;margin:0 auto 28px;max-width:720px}
+.br-browser-intro h2 {font-size:clamp(2.6rem,6vw,5.4rem);font-weight:400;letter-spacing:-.045em}
+.br-browser-intro>p:last-child {font:clamp(14px,1.5vw,17px)/1.5 'Courier New',monospace;color:#d0d0d0;margin:15px 0}
+.br-issue-tabs {display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;margin:15px auto 23px}
+.br-issue-tab {border:1px solid #777;background:#000;color:#eee;font:clamp(12px,1.5vw,15px)/1.3 'Courier New',monospace;cursor:pointer;padding:12px 16px;border-radius:40px;transition:background .14s,color .14s}
+.br-issue-tab:hover,.br-issue-tab:focus-visible,.br-issue-tab.active {color:#070707;background:#f4f1e9;border-color:#f4f1e9}
+.br-reader-card {border:1px solid #606060;background:#151515;padding:clamp(12px,2.3vw,26px);box-shadow:7px 8px 0 #090909}
+.br-reader-heading {display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:0 0 16px}
+.br-reader-heading h3 {font-size:clamp(1.25rem,2.6vw,2.3rem);font-weight:400;line-height:1.15;margin:0;overflow-wrap:anywhere}
+.br-page-count {font:14px 'Courier New',monospace;color:#bdbdbd;white-space:nowrap;margin:0 0 3px}
+.br-slider-frame {position:relative;display:flex;align-items:center;justify-content:center;background:#242424;min-height:260px;overflow:hidden;outline-offset:3px;touch-action:pan-y}
+.br-slider-frame img {display:block;width:auto;max-width:100%;height:auto;max-height:min(72vh,850px);min-height:180px;object-fit:contain;background:#efeee8}
+.br-turn {position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:48px;height:67px;border:1px solid #aaa;background:rgba(0,0,0,.82);color:#fff;font-size:27px;cursor:pointer;line-height:1}
+.br-turn:hover:not(:disabled),.br-turn:focus-visible {background:#efeee8;color:#111}
+.br-turn:disabled {opacity:.24;cursor:default}
+.br-prev {left:10px}.br-next{right:10px}
+.br-reader-footer {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:18px}
+.br-reader-shortcuts {display:flex;gap:10px}
+.br-reader-shortcuts button,.br-download-link {font:13px 'Courier New',monospace;color:#fff;background:none;border:1px solid #888;padding:11px 14px;text-decoration:none;cursor:pointer}
+.br-reader-shortcuts button:hover:not(:disabled),.br-download-link:hover {background:#eee;color:#111}
+.br-reader-shortcuts button:disabled{opacity:.3;cursor:default}
+.br-reader-hint{font:12px/1.5 'Courier New',monospace;color:#b7b7b7;text-align:center;margin:21px 0 0}
+.br-archive-separator{display:flex;align-items:center;gap:22px;margin:75px 0 24px;color:#bbb;font:12px 'Courier New',monospace;letter-spacing:.08em}
+.br-archive-separator::before,.br-archive-separator::after{content:"";flex:1;border-top:1px solid #666}
+.br-empty {font:16px/1.6 'Courier New',monospace;padding:35px}
+/* The existing zines-download section is intentionally untouched. */
+
+/* Video frames are a small cinema-wall mosaic, not a cloned UI library. */
+.br-video-gallery{max-width:1100px;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:stretch}
+.br-video-tile {grid-column:span 4;min-width:0;border:1px solid #666;background:#111;transform:translateY(0);transition:transform .18s,border-color .18s}
+.br-video-tile:nth-child(6n+2){grid-column:span 5;transform:translateY(12px)}
+.br-video-tile:nth-child(6n+3){grid-column:span 3;transform:translateY(-7px)}
+.br-video-tile:nth-child(6n+5){grid-column:span 5;transform:translateY(-5px)}
+.br-video-tile:nth-child(6n+6){grid-column:span 3;transform:translateY(9px)}
+.br-video-tile:hover,.br-video-tile:focus-within{border-color:#ddd}
+.br-video-open {width:100%;height:100%;padding:0;display:flex;flex-direction:column;text-align:left;background:none;border:0;cursor:pointer;color:#fff;font:inherit}
+.br-video-open:focus-visible{outline:2px solid white;outline-offset:3px}
+.br-video-picture {position:relative;min-height:150px;aspect-ratio:16/10;width:100%;overflow:hidden;background:repeating-linear-gradient(45deg,#242424,#242424 16px,#2e2e2e 16px,#2e2e2e 32px);display:flex;align-items:center;justify-content:center}
+.br-video-tile:nth-child(6n+2) .br-video-picture,.br-video-tile:nth-child(6n+5) .br-video-picture {aspect-ratio:16/9}
+.br-video-picture img {display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;filter:grayscale(.2);transition:transform .3s ease}
+.br-video-tile:hover img{transform:scale(1.025)}
+.br-no-poster {font:clamp(20px,3vw,42px) Georgia,serif;letter-spacing:.18em;color:#ccc}
+.br-play-symbol{position:absolute;display:grid;place-items:center;width:54px;height:54px;border:1px solid #fafafa;backdrop-filter:blur(2px);background:#000a;color:#fff;border-radius:100%;font:19px 'Courier New',monospace;padding-left:3px}
+.br-video-caption{padding:14px 16px 19px;display:flex;gap:7px;flex-direction:column;flex:1}
+.br-video-caption strong{font:400 clamp(18px,2vw,26px)/1.15 Georgia,serif;overflow-wrap:anywhere}
+.br-video-caption>span{font:12px/1.4 'Courier New',monospace;color:#bdbdbd}
+.br-video-empty{grid-column:1/-1;border:1px dashed #676767;text-align:center;padding:clamp(55px,12vw,140px) 25px;background:#111}
+.br-video-empty h2{font-size:clamp(24px,4vw,44px);margin-bottom:18px}
+.br-video-empty p{font:15px/1.5 'Courier New',monospace;color:#bbb;max-width:490px;margin:auto}
+.br-video-overlay[hidden]{display:none}
+.br-video-overlay {position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:18px;overflow-y:auto}
+.br-video-panel{width:min(100%,1020px);border:1px solid #888;background:#171717;padding:clamp(13px,2vw,24px);box-shadow:10px 14px 0 #050505}
+.br-video-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:16px}
+.br-video-panel-head h2{font-size:clamp(22px,3vw,38px);overflow-wrap:anywhere}
+.br-video-panel-head p:last-child{font:13px 'Courier New',monospace;color:#ddd;margin:9px 0 0}
+#video-close{border:1px solid #aaa;background:#eee;color:#111;padding:12px 17px;font:14px 'Courier New',monospace;white-space:nowrap;cursor:pointer}
+#video-player{display:block;width:100%;max-height:76vh;background:#050505;aspect-ratio:16/9;outline-offset:3px}
+.br-video-status{font:13px/1.5 'Courier New',monospace;color:#ccc;margin:9px 0 0}
+@media(max-width:800px){
+ .br-video-tile,.br-video-tile:nth-child(n){grid-column:span 6;transform:none}
+ .br-video-gallery{gap:14px}
+ .br-video-picture{min-height:130px}
+ .br-zine-browser{margin-bottom:58px}
+ .br-archive-separator{margin-top:55px}
+}
+@media(max-width:550px){
+ .home-actions{justify-content:center;gap:10px}
+ .home-actions .contact-davy{font-size:13px;padding:12px 10px}
+ .br-issue-tabs{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:0 0 9px;scrollbar-width:thin}
+ .br-issue-tab{flex:0 0 auto;max-width:260px;white-space:normal;padding:10px 13px}
+ .br-reader-heading{align-items:flex-start;flex-direction:column;gap:6px}
+ .br-slider-frame{min-height:200px}
+ .br-slider-frame img{min-height:0;max-height:56vh}
+ .br-turn{width:31px;height:49px;font-size:20px;background:#000c;border-color:#bbb}
+ .br-prev{left:0}.br-next{right:0}
+ .br-reader-footer{flex-direction:column;align-items:stretch}
+ .br-reader-shortcuts button{flex:1}
+ .br-download-link{text-align:center}
+ .br-video-tile,.br-video-tile:nth-child(n){grid-column:span 12;transform:none}
+ .br-video-picture{aspect-ratio:16/10}
+ .br-video-overlay{padding:6px}
+ .br-video-panel{padding:12px;box-shadow:none}
+ .br-video-panel-head{gap:8px}
+ #video-close{padding:11px 9px}
+ #video-player{max-height:67vh}
+ .br-video-gallery{gap:18px}
+}
+@media(prefers-reduced-motion:reduce){.br-video-tile,.br-video-picture img{transition:none}}
+
+/* Prevent the vintage floating-page frame from adding two stray pixels of sideways page scroll. */
+@media(max-width:800px){html,body{overflow-x:clip}}

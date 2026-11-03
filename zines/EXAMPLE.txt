@@ -1,0 +1,13 @@
+ZINES — HOW TO ADD AN ISSUE TO THE SLIDER
+
+Place a PDF in this zines/ folder, e.g.
+  zines/Summer 2027.pdf
+or a nested folder, e.g.
+  zines/2027/Summer 2027.pdf
+Commit it to GitHub. The GitHub Actions workflow renders each PDF page
+as a web-friendly image, then automatically adds an issue selector and
+download link to the reader above the existing downloads.
+Do not upload images or edit content.json manually.
+The first two issues are the original 2018 Baton Rouge Alternative zines.
+Note: the PDFs are print-layout spreads; the reader preserves that layout.
+For best results, keep PDFs under GitHub's 100 MB per-file limit.
