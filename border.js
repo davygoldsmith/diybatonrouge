@@ -1,8 +1,10 @@
 
- // Zine pages along the edges of the homepage.
- // Original animation with targeted spacing and recycling fixes.
+ // Baton Rouge Alternative — consistent, independently climbing pages.
+ // Replace border.js. Old border CSS classes are intentionally not used.
  (function () {
-   var staticPages = [
+   'use strict';
+
+   var FALLBACK = [
      'generated/page-27322a858e0bbf1.jpg',
      'generated/page-b4325ee5c997dcf.jpg',
      'generated/page-ab3b568df4b4807.jpg',
@@ -17,21 +19,47 @@
      'generated/page-631fb2648b29b6c.jpg'
    ];
 
-   var pages = staticPages.slice();
-   var phone = window.innerWidth < 700;
-   var reduce = false;
+   if (document.getElementById('bralt-edge-styles')) return;
 
+   var css = document.createElement('style');
+   css.id = 'bralt-edge-styles';
+   css.textContent = [
+     '.bralt-edge-rail{position:fixed;top:0;bottom:0;',
+     'width:clamp(215px,22vw,355px);overflow:hidden;',
+     'pointer-events:none;z-index:0;opacity:.73}',
+     '.bralt-edge-left{left:-35px}',
+     '.bralt-edge-right{right:-35px}',
+     '.bralt-edge-page{position:absolute;top:0;left:0;',
+     'transform-origin:center;will-change:transform;',
+     'transition:transform 610ms cubic-bezier(.18,.74,.22,1),',
+     'width 610ms ease,height 610ms ease}',
+     '.bralt-edge-page img{display:block;width:100%;height:100%;',
+     'object-fit:contain;filter:grayscale(1) contrast(1.12);',
+     'box-shadow:0 2px 12px #0008}',
+     '@media(max-width:1200px){.bralt-edge-rail{',
+     'width:clamp(185px,23vw,290px);opacity:.5}}',
+     '@media(max-width:700px){.bralt-edge-rail{',
+     'width:clamp(160px,44vw,205px);opacity:.4}',
+     '.bralt-edge-left{left:-85px}',
+     '.bralt-edge-right{right:-85px}}',
+     '@media(prefers-reduced-motion:reduce){',
+     '.bralt-edge-page{transition:none}}'
+   ].join('');
+
+   document.head.appendChild(css);
+
+   var reduce = false;
    try {
      reduce = window.matchMedia(
        '(prefers-reduced-motion: reduce)'
      ).matches;
    } catch (e) {}
 
-   // Original sparse number of pages.
-   var count = phone ? 3 : 8;
-   var cards = [];
-   var ratios = {};
-   var cursor = Math.floor(Math.random() * pages.length);
+   var pool = [];
+   var rails = [];
+   var imageIndex = 0;
+   var started = false;
+   var resizeTimer;
 
    function random(a, b) {
      return a + Math.random() * (b - a);
@@ -41,275 +69,382 @@
      return Math.max(a, Math.min(b, n));
    }
 
-   function nextImage() {
-     cursor = (
-       cursor + 1 + Math.floor(Math.random() * 7)
-     ) % pages.length;
+   function shuffle(values) {
+     var arr = values.slice();
 
-     return pages[cursor];
-   }
-
-   // Prevent narrow pages from wandering entirely
-   // outside the visible edge of the screen.
-   function keepOnEdge(c) {
-     var edge = c.box.parentNode.getBoundingClientRect();
-     var visible = phone ? 30 : 55;
-
-     if (c.side === 'left') {
-       c.x = Math.max(
-         c.x,
-         visible - edge.left - c.width
-       );
-     } else {
-       c.x = Math.min(
-         c.x,
-         window.innerWidth - visible - edge.left
-       );
+     for (var i = arr.length - 1; i > 0; i--) {
+       var j = Math.floor(Math.random() * (i + 1));
+       var tmp = arr[i];
+       arr[i] = arr[j];
+       arr[j] = tmp;
      }
+
+     return arr;
    }
 
-   function show(c, instant) {
-     keepOnEdge(c);
+   function nextPage(lastSrc) {
+     if (!pool.length) return null;
 
-     var transition = reduce
-       ? 'none'
-       : 'transform 690ms ease-out, width 690ms ease-out';
+     var candidate = pool[imageIndex++ % pool.length];
 
-     c.box.style.transition =
-       (instant || reduce) ? 'none' : transition;
-
-     c.box.style.width = c.width + 'px';
-
-     c.box.style.transform =
-       'translate(' +
-       Math.round(c.x) + 'px,' +
-       Math.round(c.y) + 'px) rotate(' +
-       c.turn + 'deg)';
-
-     // Prevent a recycled page from visibly
-     // flying across the screen.
-     if (instant && !reduce) {
-       void c.box.offsetHeight;
-       c.box.style.transition = transition;
+     if (pool.length > 1 && candidate.src === lastSrc) {
+       candidate = pool[imageIndex++ % pool.length];
      }
+
+     return candidate;
    }
 
-   function make(side) {
-     var rail = document.createElement('div');
-     rail.className = 'border-stream ' + side;
-     rail.setAttribute('aria-hidden', 'true');
+   // Only display images once they have loaded and decoded.
+   function preload(src) {
+     return new Promise(function (resolve) {
+       var img = new Image();
 
-     document.body.appendChild(rail);
+       img.onload = function () {
+         if (!img.naturalWidth || !img.naturalHeight) {
+           return resolve(null);
+         }
 
-     for (var n = 0; n < count; n++) {
-       var box = document.createElement('div');
-       box.className = 'floating-page';
+         var data = {
+           src: src,
+           ratio: img.naturalHeight / img.naturalWidth
+         };
 
-       var img = document.createElement('img');
-       img.alt = '';
-       img.loading = 'eager';
-
-       box.appendChild(img);
-       rail.appendChild(box);
-
-       var width = phone
-         ? random(95, 155)
-         : random(165, 320);
-
-       var c = {
-         box: box,
-         img: img,
-         side: side,
-         width: width,
-         x: random(-28, 35),
-         y: phone
-           ? n * 270 - 130
-           : n * 180 - 320,
-         ratio: 1.4,
-         height: width * 1.4,
-         turn: random(-17, 17),
-         speed: phone
-           ? random(45, 90)
-           : random(65, 120),
-         retries: 0,
-         reset: false
+         if (img.decode) {
+           img.decode().then(
+             function () { resolve(data); },
+             function () { resolve(data); }
+           );
+         } else {
+           resolve(data);
+         }
        };
 
-       cards.push(c);
+       img.onerror = function () {
+         resolve(null);
+       };
 
-       (function (card) {
-         img.onload = function () {
-           if (img.naturalWidth && img.naturalHeight) {
-             card.ratio =
-               img.naturalHeight / img.naturalWidth;
-
-             ratios[img.getAttribute('src')] =
-               card.ratio;
-
-             card.height = card.width * card.ratio;
-           }
-         };
-
-         img.onerror = function () {
-           if (card.retries < 3) {
-             card.retries++;
-             img.src = nextImage();
-           }
-         };
-       })(c);
-
-       img.src = nextImage();
-       show(c, true);
-     }
+       img.src = src;
+     });
    }
 
-   make('left');
-   make('right');
+   function setPage(card, data) {
+     card.data = data;
 
-   // Keep automatically generated zine pages.
-   fetch('content.json')
-     .then(function (res) {
-       if (!res.ok) {
-         throw new Error('Unable to load content.json');
-       }
-       return res.json();
-     })
-     .then(function (data) {
-       if (data.border && data.border.length) {
-         var incoming = [];
+     var rail = card.rail;
+     var mobile = rail.mobile;
 
-         for (var j = 0; j < data.border.length; j++) {
-           if (data.border[j].image) {
-             incoming.push(data.border[j].image);
-           }
-         }
-
-         if (incoming.length) pages = incoming;
-       }
-     })
-     .catch(function () {});
-
-   // Reduced motion leaves the original collage still.
-   if (reduce) return;
-
-   var last = Date.now();
-
-   function advance() {
-     var now = Date.now();
-
-     if (document.hidden) {
-       last = now;
-       return;
-     }
-
-     var elapsed = Math.min(
-       (now - last) / 630,
-       1.5
+     var targetWidth = rail.width * random(
+       mobile ? .7 : .57,
+       mobile ? .96 : .87
      );
 
-     last = now;
+     var heightCap = rail.spacing * (
+       mobile ? .94 : 1.11
+     );
 
-     for (var k = 0; k < cards.length; k++) {
-       var c = cards[k];
-       c.reset = false;
+     // Respect each image's actual proportions.
+     card.width = Math.round(
+       Math.min(targetWidth, heightCap / data.ratio)
+     );
 
-       // Original independent climbing motion.
-       c.y -= c.speed * elapsed;
+     card.height = Math.round(
+       card.width * data.ratio
+     );
 
-       // Original sideways movement.
-       c.x += random(
-         phone ? -9 : -28,
-         phone ? 9 : 28
-       );
+     card.x = random(
+       -4,
+       Math.max(-3, rail.width - card.width + 4)
+     );
 
-       c.x = clamp(
-         c.x,
-         phone ? -35 : -90,
-         phone ? 55 : 125
-       );
+     card.angle = random(-16, 16);
+     card.drift = random(-22, 22);
 
-       // Original irregular rotation.
-       c.turn = clamp(
-         c.turn + random(-8, 8),
-         -27,
-         27
-       );
+     card.el.style.width = card.width + 'px';
+     card.el.style.height = card.height + 'px';
+     card.img.src = data.src;
+   }
 
-       // Original occasional size changes.
-       if (!phone && Math.random() < 0.13) {
-         c.width = clamp(
-           c.width + random(-32, 32),
-           155,
-           340
-         );
+   function paint(card, immediate) {
+     var el = card.el;
 
-         // FIX: Update the actual page height.
-         c.height = c.width * c.ratio;
-       }
-
-       // FIX: Wait until the rotated page has
-       // completely exited above the screen.
-       if (
-         c.y + c.height + c.width * 0.25 < -35
-       ) {
-         // FIX: Re-enter just below the screen
-         // instead of waiting 20–220 extra pixels.
-         c.y = window.innerHeight + random(8, 32);
-
-         c.x = random(-20, 55);
-
-         c.width = phone
-           ? random(95, 155)
-           : random(165, 320);
-
-         c.retries = 0;
-
-         var src = nextImage();
-
-         c.ratio = ratios[src] || 1.4;
-         c.height = c.width * c.ratio;
-         c.img.src = src;
-
-         c.reset = true;
-       }
+     if (immediate) {
+       el.style.transition = 'none';
      }
 
-     // FIX: Allow natural empty space, but don't let
-     // enormous gaps accumulate between pages.
-     ['left', 'right'].forEach(function (side) {
-       var column = cards.filter(function (card) {
-         return card.side === side;
-       });
+     el.style.width = card.width + 'px';
+     el.style.height = card.height + 'px';
 
-       column.sort(function (a, b) {
-         return a.y - b.y;
-       });
+     el.style.transform =
+       'translate3d(' +
+       Math.round(card.x) + 'px,' +
+       Math.round(
+         card.base - card.rail.travel + card.drift
+       ) + 'px,0) rotate(' +
+       card.angle.toFixed(1) + 'deg)';
 
-       // Deliberately generous spacing.
-       // The border should NOT look crowded.
-       var maxGap = phone ? 145 : 125;
-
-       for (var j = 1; j < column.length; j++) {
-         var above = column[j - 1];
-         var below = column[j];
-
-         var gap =
-           below.y - (above.y + above.height);
-
-         if (gap > maxGap) {
-           // Small correction rather than a teleport.
-           below.y -= Math.min(
-             30,
-             gap - maxGap
-           );
-         }
-       }
-     });
-
-     for (var m = 0; m < cards.length; m++) {
-       show(cards[m], cards[m].reset);
+     if (immediate) {
+       // Reposition offscreen without animating the jump.
+       void el.offsetHeight;
+       el.style.transition = '';
      }
    }
 
-   window.setInterval(advance, 630);
+   function addCard(rail, base) {
+     var el = document.createElement('div');
+     el.className = 'bralt-edge-page';
+
+     var img = document.createElement('img');
+     img.alt = '';
+     img.loading = 'eager';
+     img.decoding = 'async';
+
+     el.appendChild(img);
+     rail.el.appendChild(el);
+
+     var card = {
+       el: el,
+       img: img,
+       rail: rail,
+       base: base,
+       drift: 0,
+       angle: 0,
+       x: 0,
+       width: 0,
+       height: 0,
+       data: null
+     };
+
+     setPage(card, nextPage(null));
+
+     rail.cards.push(card);
+     paint(card, true);
+   }
+
+   function makeRail(side) {
+     var el = document.createElement('div');
+
+     el.className =
+       'bralt-edge-rail bralt-edge-' + side;
+
+     el.setAttribute('aria-hidden', 'true');
+     document.body.appendChild(el);
+
+     var mobile = window.innerWidth < 700;
+
+     // Main density control.
+     // Larger spacing = fewer visible pages.
+     var spacing = mobile ? 250 : 325;
+
+     var rail = {
+       el: el,
+       mobile: mobile,
+       width: el.getBoundingClientRect().width,
+       spacing: spacing,
+       travel: 0,
+       cards: [],
+       maxBase: 0
+     };
+
+     rails.push(rail);
+
+     // Maintain a fixed number of vertical positions,
+     // including pages waiting just outside the viewport.
+     var count = Math.ceil(
+       window.innerHeight / spacing
+     ) + 3;
+
+     for (var i = 0; i < count; i++) {
+       var base = (i - 1) * spacing;
+
+       rail.maxBase = base;
+       addCard(rail, base);
+     }
+   }
+
+   function rebuild() {
+     rails.forEach(function (rail) {
+       rail.el.remove();
+     });
+
+     rails = [];
+
+     if (!pool.length) return;
+
+     makeRail('left');
+     makeRail('right');
+   }
+
+   function advance() {
+     if (document.hidden || reduce) return;
+
+     rails.forEach(function (rail) {
+
+       // Stable overall upward progression.
+       rail.travel += rail.mobile ? 57 : 72;
+
+       rail.cards.forEach(function (card) {
+
+         // Every page climbs independently within
+         // its own small range of movement.
+         card.drift = clamp(
+           card.drift + random(-29, 29),
+           -43,
+           43
+         );
+
+         // Random sideways wandering.
+         card.x = clamp(
+           card.x + random(-24, 24),
+           -9,
+           Math.max(
+             -8,
+             rail.width - card.width + 9
+           )
+         );
+
+         // Random rotation.
+         card.angle = clamp(
+           card.angle + random(-8, 8),
+           -23,
+           23
+         );
+
+         // Occasional subtle size changes.
+         if (Math.random() < .16) {
+           var nextWidth = clamp(
+             card.width + random(-13, 13),
+             rail.width * (
+               rail.mobile ? .56 : .49
+             ),
+             rail.width * .9
+           );
+
+           nextWidth = Math.min(
+             nextWidth,
+             rail.spacing * (
+               rail.mobile ? .94 : 1.11
+             ) / card.data.ratio
+           );
+
+           card.width = Math.round(nextWidth);
+
+           card.height = Math.round(
+             card.width * card.data.ratio
+           );
+         }
+
+         var y =
+           card.base - rail.travel + card.drift;
+
+         // Wait until the rotated page is entirely
+         // above the viewport before replacing it.
+         if (
+           y + card.height +
+           card.width * .30 < -35
+         ) {
+
+           // Preserve the spacing pattern.
+           rail.maxBase += rail.spacing;
+           card.base = rail.maxBase;
+
+           // The replacement image is already decoded.
+           setPage(
+             card,
+             nextPage(card.data.src)
+           );
+
+           // Reset instantly, outside the viewport.
+           paint(card, true);
+
+         } else {
+           // Ordinary climbing movement.
+           paint(card, false);
+         }
+       });
+     });
+   }
+
+   function begin(paths) {
+     var seen = Object.create(null);
+
+     var unique = paths.filter(function (src) {
+       if (
+         typeof src !== 'string' ||
+         !src.trim() ||
+         seen[src]
+       ) {
+         return false;
+       }
+
+       seen[src] = true;
+       return true;
+     });
+
+     var selected = shuffle(unique);
+
+     // Decode the first group before showing pages.
+     Promise.all(
+       selected.slice(0, 18).map(preload)
+     ).then(function (first) {
+
+       pool = shuffle(first.filter(Boolean));
+
+       if (!pool.length) return;
+
+       rebuild();
+
+       if (!started) {
+         started = true;
+
+         // Keep the original climbing rhythm.
+         window.setInterval(advance, 630);
+
+         window.addEventListener(
+           'resize',
+           function () {
+             clearTimeout(resizeTimer);
+
+             resizeTimer = setTimeout(
+               rebuild,
+               200
+             );
+           },
+           { passive: true }
+         );
+       }
+
+       // Load additional zine pages without
+       // interrupting the running animation.
+       Promise.all(
+         selected.slice(18).map(preload)
+       ).then(function (rest) {
+         pool = shuffle(
+           pool.concat(rest.filter(Boolean))
+         );
+       });
+     });
+   }
+
+   fetch('content.json')
+     .then(function (r) {
+       if (!r.ok) {
+         throw new Error('Missing content.json');
+       }
+
+       return r.json();
+     })
+     .then(function (data) {
+       var paths = Array.isArray(data.border)
+         ? data.border.map(function (item) {
+             return item && item.image;
+           })
+         : [];
+
+       begin(
+         paths.length ? paths : FALLBACK
+       );
+     })
+     .catch(function () {
+       begin(FALLBACK);
+     });
  })();
